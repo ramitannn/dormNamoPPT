@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DormNamo | Pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600..800&family=Figtree:wght@400..800&display=swap" rel="stylesheet" />
+<style>
+/* ================================================================
+   DormNamo pitch deck. A standalone page: open it with any local
+   server (or by double-clicking). Nothing here touches the website.
+
+   Keys:  → / Space / ↓ / Enter  next (reveals the next step first)
+          ← / ↑ / Backspace      back
+          Home / End             first / last slide
+          F                      full screen
+          N                      speaker notes
+          P                      pause / play the video
+          1-9 then Enter         jump to a slide
+   Mouse: click the right half for next, the left half for back.
+   Touch: swipe left / right.
+   Edit TEAM in the script at the bottom to fill in the five of you.
+
+   Styles, in order:
+     1. Tokens and base         5. Shared parts (cards, icons, one-at-a-time, pictures, numbers)
+     2. Stage and slides        6. Slides, in deck order
+     3. Builds (animations)     7. Presenter chrome
+     4. Type                    8. Reduced motion
+   ================================================================ */
+
+/* ---------- 1. Tokens and base ---------- */
+:root {
+  --bg: #ffffff;
+  --ink: #0a2f73;
+  --text: #33415c;
+  --mute: #6b7891;
+  --line: #e3e9f3;
+  --soft: #f5f8fd;
+  --blue: #0a47a9;
+  --gold: #ffc83d;
+  --goldink: #5a4100;
+  --green: #16a34a;
+  --head: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;
+  --body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ease: cubic-bezier(0.2, 0.75, 0.2, 1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #0d1626; overflow: hidden; }
+body { font-family: var(--body); color: var(--text); -webkit-font-smoothing: antialiased; }
+body.idle { cursor: none; }
+
+/* ---------- 2. Stage and slides: the 16:9 stage, scaled to fit the window (script: fit()) ---------- */
+.stage {
+  position: absolute; left: 50%; top: 50%;
+  width: 1600px; height: 900px;
+  transform-origin: 0 0;
+  background: var(--bg);
+  overflow: hidden;
+}
+.slide {
+  position: absolute; inset: 0;
+  padding: 96px 120px 110px;
+  display: flex; flex-direction: column; justify-content: center;
+  opacity: 0; visibility: hidden;
+  transform: translateX(36px);
+  transition: opacity 0.55s var(--ease), transform 0.65s var(--ease), visibility 0s 0.65s;
+}
+.slide.on { opacity: 1; visibility: visible; transform: none; transition: opacity 0.55s var(--ease), transform 0.65s var(--ease); }
+.slide.left { transform: translateX(-36px); }
+
+/* ---------- 3. Builds ---------- */
+/* entrance: every .a inside the current slide rises in, one after another (--i set by the script) */
+.slide .a { opacity: 0; transform: translateY(22px); }
+.slide.on .a { animation: rise 0.7s var(--ease) both; animation-delay: calc(140ms + var(--i, 0) * 95ms); }
+.slide.on .a.fade { animation-name: fade; }
+.slide.on .a.pop { animation-name: pop; }
+@keyframes rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+@keyframes fade { from { opacity: 0; transform: none; } to { opacity: 1; transform: none; } }
+@keyframes pop { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+/* click: .step stays hidden until → reveals it */
+.slide .step { opacity: 0; transform: translateY(16px); transition: opacity 0.5s var(--ease), transform 0.5s var(--ease); }
+.slide .step.shown { opacity: 1; transform: none; }
+
+/* ---------- 4. Type ---------- */
+.kicker { font: 700 22px/1 var(--body); letter-spacing: 0.01em; color: var(--blue); margin: 0 0 26px; }
+h1, h2 { font-family: var(--head); color: var(--ink); margin: 0; letter-spacing: -0.03em; text-wrap: balance; }
+h1 { font-size: 104px; line-height: 0.98; font-weight: 800; }
+h2 { font-size: 64px; line-height: 1.04; font-weight: 800; max-width: 22ch; }
+p.lead { font-size: 30px; line-height: 1.45; margin: 28px 0 0; max-width: 46ch; color: var(--text); }
+.mute { color: var(--mute); }
+.hl { color: var(--blue); }
+/* .mark: a gold underline sweeps under the words after the headline lands */
+.mark { position: relative; white-space: nowrap; }
+.mark::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0.02em; height: 0.12em;
+  background: var(--gold); border-radius: 99px; transform: scaleX(0); transform-origin: left;
+}
+.slide.on .mark::after { transition: transform 0.9s var(--ease) 0.75s; transform: scaleX(1); }
+.source { position: absolute; left: 120px; bottom: 58px; font-size: 17px; color: var(--mute); }
+
+/* ---------- 5. Shared parts ---------- */
+/* layout */
+.row { display: flex; gap: 56px; align-items: center; }
+.grid { display: grid; gap: 28px; margin-top: 56px; }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+
+/* cards */
+.box { border: 1.5px solid var(--line); border-radius: 22px; padding: 30px 32px; background: #fff; }
+.box h3 { font: 800 28px/1.2 var(--head); color: var(--ink); margin: 0 0 10px; letter-spacing: -0.01em; }
+.box p { font-size: 21px; line-height: 1.45; margin: 0; }
+.box.soft { background: var(--soft); border-color: transparent; }
+.box p.src { margin-top: 18px; font-size: 16px; color: var(--mute); }
+.num { font: 800 22px/1 var(--head); color: var(--blue); margin-bottom: 18px; display: block; }
+
+/* the door logo */
+.logo { display: flex; align-items: center; gap: 22px; }
+.logo svg { width: 64px; height: auto; }
+.logo b { font: 800 46px/1 var(--head); color: var(--ink); letter-spacing: -0.02em; }
+.logo b span { color: var(--blue); }
+
+/* .ic: a line icon in a circle (ethics rules, who it's for, Namo) */
+.ic { width: 92px; height: 92px; border-radius: 50%; background: #fff; display: grid; place-items: center; color: var(--blue); margin-bottom: 22px; }
+.ic svg { width: 48px; height: 48px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.step .ic { transform: scale(0.8); transition: transform 0.5s var(--ease) 0.15s; }
+.step.shown .ic { transform: none; }
+/* .tg: an on/off switch that flips on when its card shows */
+.tg { position: relative; width: 58px; height: 32px; border-radius: 99px; background: var(--line); transition: background-color 0.4s var(--ease) 0.5s; }
+.tg i { position: absolute; left: 4px; top: 4px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(10, 47, 115, 0.2); transition: transform 0.4s var(--ease) 0.5s; }
+.step.shown .tg { background: var(--green); }
+.step.shown .tg i { transform: translateX(26px); }
+/* .rules: centered icon cards */
+.rules { margin-top: 44px; }
+.rules .box { text-align: center; padding: 34px 26px; }
+.rules .ic { margin: 0 auto 20px; }
+.rules .box p { font-size: 20px; }
+
+/* .solo: one card at a time (Why it's hard, Key features, Matching). All cards share one grid cell; the first
+   shows with the slide, each → (a .step) slides the next one in, and a card hides once a later card is shown (:has). */
+.solo { display: grid; margin-top: 56px; }
+.solo > .one { grid-area: 1 / 1; display: grid; grid-template-columns: 1fr auto; gap: 64px; align-items: center; padding: 48px 56px; }
+.slide .solo > .one { opacity: 0; transform: translateX(48px); transition: opacity 0.5s var(--ease), transform 0.6s var(--ease); }
+.slide.on .solo > .one:first-child, .slide .solo > .one.shown { opacity: 1; transform: none; }
+.slide.on .solo > .one:first-child { transition-delay: 0.35s; }
+.slide.on .solo > .one.one:has(~ .shown) { opacity: 0; transform: translateX(-48px); transition-delay: 0s; }
+.one h3 { font-size: 46px; margin-bottom: 16px; }
+.one p { font-size: 26px; max-width: 30ch; }
+.box.one p.src { font-size: 18px; margin-top: 24px; }
+
+/* .viz: a small sample picture (371 × 150, shown 1.5× on a .one card); its parts build in once their card shows.
+   Parts marked .in are staggered by position. */
+.viz { position: relative; height: 150px; margin-bottom: 24px; border-radius: 14px; background: #fff; overflow: hidden;
+  font-size: 15px; line-height: 1.3; color: var(--text); }
+.one .viz { zoom: 1.5; width: 371px; margin: 0; }
+.one.box:not(.soft) .viz { background: var(--soft); }
+.viz .post, .viz .warn, .viz .flag, .viz .ln, .viz .in { opacity: 0; translate: 0 -10px; transition: opacity 0.45s var(--ease), translate 0.45s var(--ease), background-color 0.5s var(--ease); }
+.step.shown .viz .post, .step.shown .viz .warn, .step.shown .viz .flag, .step.shown .viz .ln, .step.shown .viz .in,
+.slide.on .one:first-child .viz .post, .slide.on .one:first-child .viz .warn, .slide.on .one:first-child .viz .flag,
+.slide.on .one:first-child .viz .ln, .slide.on .one:first-child .viz .in { opacity: 1; translate: 0 0; }
+.viz .in:nth-child(2) { transition-delay: 0.2s; }
+.viz .in:nth-child(3) { transition-delay: 0.3s; }
+.viz .in:nth-child(4) { transition-delay: 0.4s; }
+.viz .in:nth-child(n+5) { transition-delay: 0.5s; }
+
+/* big numbers (Problem, Validation); data-count counts up (script: countUp) */
+.stat { padding: 34px 32px 30px; }
+.stat .big { font: 800 92px/0.9 var(--head); color: var(--ink); letter-spacing: -0.04em; display: flex; align-items: baseline; gap: 10px; }
+.stat .big small { font: 700 32px var(--head); color: var(--mute); letter-spacing: 0; }
+.stat p { margin-top: 18px; font-size: 22px; }
+/* "N of M" block charts: one block per place or person; they rise in left to right, then the counted ones fill blue
+   (the script builds the blocks and sets --of) */
+.cells { display: grid; grid-template-columns: repeat(var(--of, 13), 1fr); gap: 5px; height: 34px; margin-top: 24px; }
+.cells i { border-radius: 6px; background: #dbe3f0; opacity: 0; transform: scaleY(0.3); transform-origin: bottom; }
+.slide.on .cells i { animation: cell 0.45s var(--ease) both; animation-delay: calc(700ms + var(--j) * 40ms); }
+.slide.on .cells i.y { background: var(--blue); animation: cell 0.45s var(--ease) both, fillin 0.5s var(--ease) both;
+  animation-delay: calc(700ms + var(--j) * 40ms), calc(900ms + var(--of) * 40ms + var(--j) * 25ms); }
+@keyframes cell { to { opacity: 1; transform: none; } }
+@keyframes fillin { from { background: #dbe3f0; } to { background: var(--blue); } }
+
+/* ---------- 6. Slides, in deck order ---------- */
+
+/* 1 Title */
+.title { justify-content: space-between; padding-top: 110px; }
+.title h1 { max-width: 13ch; margin-top: 70px; }
+.title .foot { display: flex; justify-content: space-between; align-items: flex-end; font-size: 22px; color: var(--mute); }
+.title .url { font: 700 24px var(--body); color: var(--blue); }
+.glow { position: absolute; right: -200px; top: -160px; width: 760px; height: 760px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 200, 61, 0.22), rgba(255, 200, 61, 0)); pointer-events: none; }
+
+/* 2 Problem: uses .stat and .cells (shared) */
+
+/* 3 Why it's hard: one problem at a time (.solo), each with a picture */
+/* 01 scattered posts, none with a price */
+.posts .post { position: absolute; display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #fff;
+  border: 1.5px solid var(--line); border-radius: 12px; box-shadow: 0 4px 12px rgba(10, 47, 115, 0.06); }
+.posts .post:nth-child(1) { top: 10px; left: 12px; right: 22px; transform: rotate(-2deg); transition-delay: 0.25s; }
+.posts .post:nth-child(2) { top: 55px; left: 28px; right: 8px; transform: rotate(1.5deg); transition-delay: 0.4s; }
+.posts .post:nth-child(3) { top: 100px; left: 8px; right: 26px; transform: rotate(-1deg); transition-delay: 0.55s; }
+.post .av { width: 24px; height: 24px; border-radius: 50%; background: var(--line); flex: none; }
+.post span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.post b { flex: none; font: 800 13px var(--head); color: var(--mute); background: var(--soft); border-radius: 99px; padding: 3px 9px; }
+/* 02 a listing that looks fine but isn't verified */
+.scam { display: flex; gap: 14px; padding: 14px; }
+.scam .ph { position: relative; width: 104px; flex: none; border-radius: 10px; background: linear-gradient(135deg, var(--line), var(--soft)); }
+.scam .flag { position: absolute; left: 6px; right: 6px; bottom: 6px; text-align: center; font: 700 12px var(--body); color: var(--goldink);
+  background: var(--gold); border-radius: 99px; padding: 4px 0; transition-delay: 0.7s; }
+.scam .info { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.scam .info b { font: 800 17px/1.2 var(--head); color: var(--ink); }
+.scam .pr { font: 800 21px var(--head); color: var(--ink); }
+.scam .pr small { font: 600 13px var(--body); color: var(--mute); }
+.scam .warn { align-self: flex-start; font-size: 14px; color: var(--goldink); background: rgba(255, 200, 61, 0.22); border-radius: 8px; padding: 4px 8px; transition-delay: 0.45s; }
+/* 03 a feed sorted by views, where the room that fits comes last */
+.feed { display: grid; gap: 6px; align-content: start; padding: 12px 14px; }
+.feed .hd { display: flex; justify-content: space-between; font: 700 13px var(--body); color: var(--mute); padding: 0 6px; }
+.feed .ln { display: grid; grid-template-columns: 16px 1fr auto 20px; gap: 10px; align-items: center; padding: 5px 10px; border-radius: 10px; background: var(--soft); }
+.feed .ln:nth-child(2) { transition-delay: 0.25s; }
+.feed .ln:nth-child(3) { transition-delay: 0.35s; }
+.feed .ln:nth-child(4) { transition-delay: 0.45s, 0.45s, 1s; }
+.feed .ln i { font: 800 15px var(--head); font-style: normal; color: var(--mute); }
+.feed .ln span { font-weight: 700; color: var(--ink); }
+.feed .ln em { font: 700 12px var(--body); font-style: normal; color: var(--blue); background: rgba(10, 71, 169, 0.08); border-radius: 99px; padding: 3px 8px; }
+.feed .ln em:empty { visibility: hidden; }
+.feed .ln b { font: 800 16px var(--head); text-align: center; }
+.feed .no { color: var(--mute); }
+.feed .yes { color: var(--green); }
+.step.shown .feed .ln.best, .slide.on .one:first-child .feed .ln.best { background: rgba(22, 163, 74, 0.12); }
+
+/* 4 Meet DormNamo: a room card (real listing, example match %) */
+.card { width: 430px; border-radius: 28px; overflow: hidden; border: 1.5px solid var(--line); background: #fff;
+  box-shadow: 0 30px 70px rgba(10, 47, 115, 0.14); flex: none; }
+.card .ph { height: 190px; background: linear-gradient(150deg, #eef4fd, #dbe7fb); position: relative; display: grid; place-items: center; }
+.card .ph svg { width: 60px; opacity: 0.35; }
+.card .tag { position: absolute; top: 16px; padding: 7px 14px; border-radius: 99px; font: 700 16px var(--body); }
+.card .tag.l { left: 16px; background: #fff; color: var(--ink); }
+.card .tag.r { right: 16px; background: var(--gold); color: var(--goldink); font-weight: 800; }
+.card .cb { padding: 24px 26px 26px; }
+.card h4 { font: 800 27px/1.15 var(--head); color: var(--ink); margin: 0 0 6px; }
+.card .meta { font-size: 18px; color: var(--mute); }
+.card .facts { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; font-size: 18px; }
+.card .facts li { display: flex; gap: 10px; align-items: center; }
+.card .facts .y { color: var(--green); font-weight: 800; }
+.card .facts .q { color: var(--mute); font-weight: 800; }
+.card .price { margin-top: 18px; font: 800 26px var(--head); color: var(--ink); }
+.card .price small { font: 600 17px var(--body); color: var(--mute); }
+.example { font-size: 16px; color: var(--mute); margin-top: 14px; text-align: center; }
+
+/* 5 Hook and 6 Ad: full-bleed videos */
+.slide.film { padding: 0; background: #000; }
+.film video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.film .hint { position: absolute; left: 50%; bottom: 60px; transform: translateX(-50%); margin: 0; padding: 14px 28px; border-radius: 99px;
+  background: rgba(10, 20, 38, 0.8); color: #fff; font: 700 22px var(--body); }
+
+/* 7 Key features: one feature at a time (.solo), each with a picture */
+/* 01 compare table */
+.cmp { display: grid; grid-template-columns: 54px repeat(3, 1fr); gap: 6px; align-content: center; padding: 12px 14px; font-size: 14px; }
+.cmp b { font: 800 14px var(--head); color: var(--ink); text-align: center; }
+.cmp i { font-style: normal; font-weight: 700; color: var(--mute); align-self: center; }
+.cmp span:not(:first-child) { text-align: center; background: #fff; border-radius: 8px; padding: 5px 0; font-weight: 700; color: var(--ink); }
+.cmp .best { background: rgba(255, 200, 61, 0.35); color: var(--goldink); }
+.cmp .unk { color: var(--mute); font-weight: 600; }
+.cmp .yes { color: var(--green); }
+/* 02 a short chat with Namo */
+.mchat { display: flex; flex-direction: column; gap: 8px; justify-content: center; padding: 12px 14px; font-size: 14px; }
+.mchat span { max-width: 78%; padding: 8px 12px; border-radius: 14px; }
+.mchat .me { align-self: flex-end; background: var(--blue); color: #fff; border-bottom-right-radius: 4px; }
+.mchat .bot { align-self: flex-start; background: #fff; color: var(--ink); border-bottom-left-radius: 4px; }
+/* 03 like or pass a room, and what it learns */
+.swp { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; justify-items: center; gap: 4px 10px; padding: 12px 14px; }
+.swp .rc { width: 150px; background: #fff; border-radius: 12px; padding: 8px; box-shadow: 0 4px 12px rgba(10, 47, 115, 0.08); display: grid; gap: 2px; }
+.swp .rc i { height: 44px; border-radius: 8px; background: linear-gradient(135deg, var(--line), var(--soft)); margin-bottom: 4px; }
+.swp .rc b { font: 800 14px var(--head); color: var(--ink); }
+.swp .rc small { font-size: 12px; color: var(--mute); }
+.swp .pass, .swp .like { font: 800 13px var(--body); border-radius: 99px; padding: 5px 10px; }
+.swp .pass { color: var(--mute); background: #fff; }
+.swp .like { color: #fff; background: var(--green); }
+.swp .lrn { grid-column: 1 / -1; margin: 0; font: 700 13px var(--body); color: var(--blue); }
+/* 04 an owner's listing form */
+.lform { display: grid; gap: 8px; align-content: center; padding: 12px 14px; font-size: 14px; }
+.lform .fld { display: flex; justify-content: space-between; background: #fff; border: 1.5px solid var(--line); border-radius: 8px; padding: 6px 10px; color: var(--ink); font-weight: 600; }
+.lform .fld i { font-style: normal; color: var(--mute); font-weight: 600; }
+.lform .act { display: flex; align-items: center; gap: 8px; }
+.lform .chk { font-weight: 700; color: var(--green); }
+.lform .chk.off { color: var(--mute); }
+.lform .post { margin-left: auto; font: 800 13px var(--body); color: #fff; background: var(--blue); border-radius: 99px; padding: 5px 12px; }
+.lform .feat { font: 800 12px var(--body); color: var(--goldink); background: var(--gold); border-radius: 99px; padding: 4px 9px; }
+
+/* 8 Matching: the worked example, one part per card (.solo); each picture animates once its card shows */
+.mx .one { padding: 40px 48px; }
+.mx .res { margin-top: 22px; font-size: 22px; color: var(--text); }
+.mx .res b { font: 800 34px var(--head); color: var(--ink); white-space: nowrap; }
+.mx .eq { font: 700 24px var(--body); color: var(--ink); }
+.mx .pic { width: 540px; display: grid; gap: 20px; align-content: center; background: #fff; border-radius: 18px; padding: 26px 28px; }
+/* 1/3 the checklist rows */
+.ck { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 19px; }
+.ck li { display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: 12px; padding: 8px 14px; border-radius: 10px; background: var(--soft); color: var(--ink); }
+.ck li.k { background: rgba(22, 163, 74, 0.1); }
+.ck .y { color: var(--green); font-weight: 800; }
+.ck .q { color: var(--mute); font-weight: 800; }
+.ck em { font: 700 13px var(--body); font-style: normal; color: var(--blue); margin-left: 6px; }
+.ck b { font: 800 14px var(--head); color: var(--mute); }
+.mx .ck li, .mx .sw i { opacity: 0; transform: translateY(8px); transition: opacity 0.4s var(--ease), transform 0.4s var(--ease); }
+.slide.on .mx .one:first-child .ck li, .mx .one.shown .sw i { opacity: 1; transform: none; }
+.slide.on .mx .ck li:nth-child(1) { transition-delay: 0.6s; }
+.slide.on .mx .ck li:nth-child(2) { transition-delay: 0.7s; }
+.slide.on .mx .ck li:nth-child(3) { transition-delay: 0.8s; }
+.slide.on .mx .ck li:nth-child(4) { transition-delay: 0.9s; }
+.slide.on .mx .ck li:nth-child(5) { transition-delay: 1s; }
+/* meters (known points, how much learning counts) */
+.meter { display: grid; gap: 8px; font: 600 16px var(--body); color: var(--mute); }
+.meter .lb { display: flex; justify-content: space-between; }
+.meter .lb span:last-child { color: var(--ink); font-weight: 700; }
+.meter .lb.sm { font-size: 14px; }
+.meter .lb.sm span:last-child { color: var(--mute); font-weight: 600; }
+.meter .tr { height: 14px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.meter .tr i { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--blue); }
+.meter.gold .tr i { background: var(--gold); }
+.slide.on .mx .one:first-child .meter .tr i { width: var(--w); transition: width 1s var(--ease) 1.1s; }
+.mx .one.shown .meter .tr i { width: var(--w); transition: width 1s var(--ease) 0.9s; }
+/* 2/3 the swipe cards */
+.sw { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; }
+.sw i { height: 70px; border-radius: 10px; background: linear-gradient(160deg, var(--line), var(--soft)); border: 1.5px solid var(--line); }
+.mx .one.shown .sw i { transition-delay: calc(0.25s + var(--k, 0) * 60ms); }
+.sw i:nth-child(2) { --k: 1; } .sw i:nth-child(3) { --k: 2; } .sw i:nth-child(4) { --k: 3; } .sw i:nth-child(5) { --k: 4; }
+.sw i:nth-child(6) { --k: 5; } .sw i:nth-child(7) { --k: 6; } .sw i:nth-child(8) { --k: 7; } .sw i:nth-child(9) { --k: 8; } .sw i:nth-child(10) { --k: 9; }
+/* 3/3 the score ring: blue checklist part, then gold learned part */
+.ring { position: relative; width: 230px; height: 230px; margin: 0 auto; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 16; }
+.ring .bg { stroke: var(--soft); }
+.ring .p1 { stroke: var(--blue); stroke-dasharray: 0 100; }
+.ring .p2 { stroke: var(--gold); stroke-dasharray: 0 100; stroke-dashoffset: -58.5; }
+.mx .one.shown .ring .p1 { stroke-dasharray: 58.5 100; transition: stroke-dasharray 1.1s var(--ease) 0.5s; }
+.mx .one.shown .ring .p2 { stroke-dasharray: 17.5 100; transition: stroke-dasharray 0.7s var(--ease) 1.5s; }
+.ring .v { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font: 800 72px/1 var(--head); color: var(--ink); letter-spacing: -0.03em; }
+.ring .v small { font-size: 30px; color: var(--mute); margin-left: 2px; }
+.lg { display: flex; justify-content: center; gap: 22px; font: 700 16px var(--body); color: var(--text); }
+.lg i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 7px; background: var(--blue); }
+.lg i.g { background: var(--gold); }
+
+/* 9 Meet Namo: four icon labels, and the chat in a phone-style window */
+.nf { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 28px; margin-top: 44px; }
+.nf > div { display: flex; align-items: center; gap: 16px; font: 700 24px/1.25 var(--body); color: var(--ink); }
+.nf .ic { flex: none; width: 64px; height: 64px; margin: 0; background: var(--soft); }
+.nf .ic svg { width: 32px; height: 32px; }
+.phone { width: 540px; flex: none; border-radius: 34px; border: 1.5px solid var(--line); background: #fff; overflow: hidden;
+  box-shadow: 0 30px 70px rgba(10, 47, 115, 0.12); }
+.ph-h { display: flex; align-items: center; gap: 14px; padding: 18px 24px; border-bottom: 1.5px solid var(--line); }
+.ph-h .av { width: 46px; height: 46px; border-radius: 50%; background: var(--soft); display: grid; place-items: center; }
+.ph-h .av svg { width: 22px; height: auto; }
+.ph-h b { display: block; font: 800 22px var(--head); color: var(--ink); }
+.ph-h small { font-size: 15px; color: var(--mute); }
+.ph-b { display: grid; gap: 14px; padding: 24px; min-height: 420px; align-content: start; background: linear-gradient(180deg, #fff, var(--soft)); }
+.bub { padding: 18px 22px; border-radius: 22px; font-size: 21px; line-height: 1.45; max-width: 470px; }
+.bub.me { background: var(--blue); color: #fff; justify-self: end; border-bottom-right-radius: 6px; }
+.bub.bot { background: var(--soft); color: var(--ink); border-bottom-left-radius: 6px; }
+.bub b { font-weight: 800; }
+.ph-b .bub { font-size: 19px; max-width: 420px; }
+.ph-b .bub.bot { background: #fff; border: 1.5px solid var(--line); position: relative; }
+/* typing dots show for a moment, then the reply appears */
+.bub .dots { position: absolute; left: 22px; top: 22px; display: flex; gap: 5px; opacity: 0; }
+.bub .dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--mute); animation: dot 0.9s infinite ease-in-out; }
+.bub .dots i:nth-child(2) { animation-delay: 0.15s; }
+.bub .dots i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes dot { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+.step.shown .dots { animation: typing 0.75s linear both; }
+@keyframes typing { 0%, 85% { opacity: 1; } 100% { opacity: 0; } }
+.bub .said { opacity: 0; transition: opacity 0.35s var(--ease) 0.7s; }
+.step.shown .said { opacity: 1; }
+/* the listing card inside a reply, and quick replies */
+.mini { display: grid; gap: 6px; }
+.mini b { font: 800 19px/1.2 var(--head); color: var(--ink); }
+.mini .pr { font: 800 24px var(--head); color: var(--ink); }
+.mini .pr small { font: 600 15px var(--body); color: var(--mute); }
+.tags { display: flex; gap: 8px; margin-top: 4px; }
+.tags em, .qr u { font: 700 14px var(--body); font-style: normal; text-decoration: none; border-radius: 99px; padding: 5px 12px; }
+.tags .y { color: var(--green); background: rgba(22, 163, 74, 0.1); }
+.tags .q { color: var(--mute); background: var(--soft); }
+.qr { display: flex; gap: 8px; margin-top: 12px; }
+.qr u { color: var(--blue); border: 1.5px solid var(--blue); }
+
+/* 10 How it's built: the phone and the services it talks to */
+.arch { display: grid; grid-template-columns: 1fr 150px 1fr; margin-top: 52px; }
+.dev { border: 3px solid var(--ink); border-radius: 34px; padding: 30px 34px; display: grid; gap: 12px; align-content: center; }
+.dev .lbl { font: 700 18px var(--body); color: var(--mute); margin-bottom: 4px; }
+.dev .chip { font: 800 26px var(--head); color: var(--ink); background: var(--soft); border-radius: 14px; padding: 14px 20px; }
+.dev small { font-size: 16px; color: var(--mute); margin-top: 4px; }
+.links { display: grid; grid-template-rows: repeat(3, 1fr); gap: 18px; padding: 0 12px; }
+.links i { align-self: center; height: 3px; background: var(--blue); border-radius: 99px; }
+.links i.dash { background: repeating-linear-gradient(90deg, var(--mute) 0 10px, transparent 10px 18px); }
+.svc { display: grid; grid-template-rows: repeat(3, 1fr); gap: 18px; }
+.svc .box { display: grid; gap: 4px; align-content: center; padding: 22px 28px; }
+.svc b { font: 800 26px var(--head); color: var(--ink); }
+.svc span { font-size: 19px; color: var(--mute); }
+
+/* 11 Ethical use of data: the problem line, then the four rules (.rules), then the closing line */
+.prob { max-width: none; margin-top: 22px; font-size: 26px; }
+.prob b { color: var(--goldink); background: rgba(255, 200, 61, 0.35); border-radius: 8px; padding: 0 8px; }
+.rules-end { margin: 40px 0 0; text-align: center; font: 800 40px var(--head); color: var(--ink); letter-spacing: -0.02em; }
+
+/* 12 Who it's for: renters on one side, owners on the other */
+.aud { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 28px; margin-top: 52px; }
+.aud .side { font: 700 20px var(--body); color: var(--blue); padding-bottom: 12px; border-bottom: 3px solid var(--blue); }
+.aud .side:first-child { grid-column: 1 / 3; }
+.aud .side.own { color: var(--goldink); border-color: var(--gold); }
+.aud .box { text-align: center; padding: 36px 26px; }
+.aud .ic { margin: 0 auto 20px; }
+.aud .box.own .ic { background: rgba(255, 200, 61, 0.3); color: var(--goldink); }
+.aud .box p { color: var(--mute); }
+
+/* 13 Business model: price cards, and the months when boosts sell */
+.plans { display: grid; grid-template-columns: 1fr 1.25fr 1.25fr; gap: 28px; margin-top: 52px; }
+.plan h3 { font-size: 24px; color: var(--mute); font-family: var(--body); font-weight: 700; margin-bottom: 14px; }
+.plan .p { font: 800 54px/1 var(--head); color: var(--ink); letter-spacing: -0.03em; }
+.plan .p small { font: 600 20px var(--body); color: var(--mute); letter-spacing: 0; }
+.plan ul { list-style: none; margin: 22px 0 0; padding: 0; font-size: 20px; line-height: 1.6; }
+.plan li::before { content: "✓"; color: var(--green); font-weight: 800; margin-right: 10px; }
+.plan.feat { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(255, 200, 61, 0.35); }
+.season { display: flex; align-items: center; gap: 28px; margin-top: 30px; font: 700 20px var(--body); color: var(--ink); }
+.season .mo { flex: 1; display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; }
+.season i { font: 700 15px/38px var(--body); font-style: normal; text-align: center; color: var(--mute); background: var(--soft); border-radius: 8px;
+  transition: background-color 0.4s var(--ease), color 0.4s var(--ease); }
+.slide.on .season i.pk { background: var(--gold); color: var(--goldink); transition-delay: calc(0.9s + var(--k) * 40ms); }
+
+/* 14 Validation: two .stat cards and a "testing next" list */
+.col h3 { display: flex; gap: 12px; align-items: center; }
+.col ul { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 16px; font-size: 22px; line-height: 1.4; }
+.col li { display: flex; gap: 14px; }
+.col li::before { content: ""; flex: none; width: 10px; height: 10px; border-radius: 50%; margin-top: 11px; background: var(--blue); }
+.col.next li::before { background: var(--gold); }
+
+/* 15 Roadmap */
+.road { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 64px; position: relative; }
+.road::before { content: ""; position: absolute; left: 0; right: 0; top: 13px; height: 3px; background: var(--line); }
+.road .r { position: relative; padding-right: 40px; }
+.road .dot { width: 29px; height: 29px; border-radius: 50%; background: #fff; border: 3px solid var(--blue); position: relative; z-index: 1; }
+.road .r.now .dot { background: var(--blue); }
+.road h3 { font: 800 30px var(--head); color: var(--ink); margin: 26px 0 14px; }
+.road .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.road .chips span { font: 700 19px var(--body); color: var(--ink); background: var(--soft); border-radius: 99px; padding: 9px 16px; }
+.road .r.now .chips span { background: var(--blue); color: #fff; }
+
+/* 16 Team (cards built from TEAM in the script) */
+.team { display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px; margin-top: 60px; }
+.who { text-align: center; padding: 30px 18px 28px; }
+.who .av { width: 96px; height: 96px; border-radius: 50%; margin: 0 auto 18px; display: grid; place-items: center;
+  font: 800 34px var(--head); color: var(--ink); background: var(--soft); overflow: hidden; }
+.who .av img { width: 100%; height: 100%; object-fit: cover; }
+.who h3 { font-size: 23px; margin: 0; }
+.who .role { font: 700 16px/1.3 var(--body); color: var(--blue); margin: 8px 0 12px; }
+.who p { font-size: 17px; }
+
+/* 17 Close */
+.close { align-items: center; text-align: center; }
+.close h1 { margin-top: 40px; }
+.close .url { margin-top: 40px; display: inline-block; padding: 20px 40px; border-radius: 99px; background: var(--gold);
+  color: var(--goldink); font: 800 34px var(--body); }
+
+/* ---------- 7. Presenter chrome: progress bar, counter, jump readout, notes (outside the stage) ---------- */
+.progress { position: fixed; left: 0; bottom: 0; height: 4px; background: var(--gold); width: 0; transition: width 0.5s var(--ease); z-index: 5; }
+.count { position: fixed; right: 22px; bottom: 16px; font: 600 14px var(--body); color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.12em; z-index: 5; font-variant-numeric: tabular-nums; }
+.jump { position: fixed; left: 22px; bottom: 14px; font: 700 16px var(--body); color: #fff; z-index: 6; }
+.notes { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); width: min(900px, 92vw);
+  background: rgba(10, 20, 38, 0.94); color: #e8eefb; border-radius: 16px; padding: 18px 24px; font-size: 18px; line-height: 1.5;
+  z-index: 6; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4); }
+.notes b { color: var(--gold); font-weight: 700; display: block; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 6px; }
+.notes[hidden] { display: none; }
+
+/* ---------- 8. Reduced motion: everything shows at once, in place ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .slide, .slide.on, .slide .step { transition: none; transform: none; }
+  .slide.on .a { animation: none; opacity: 1; transform: none; }
+  .slide.on .mark::after { transition: none; }
+  .slide .solo > .one { transition: none; }
+  .step .ic, .tg, .tg i { transition: none; }
+  .viz .post, .viz .warn, .viz .flag, .viz .ln, .viz .in { transition: none; }
+  .slide.on .cells i { animation: none; opacity: 1; transform: none; }
+  .mx .ck li, .mx .sw i, .mx .meter .tr i, .mx .ring circle { transition: none !important; }
+  .step.shown .dots { animation: none; }
+  .bub .said { transition: none; }
+  .season i { transition: none; }
+}
+</style>
+</head>
+<body>
+<main class="stage" id="stage">
+
+  <!-- 1 Title -->
+  <section class="slide title" data-notes="Introduce yourselves in one line. Then the promise: DormNamo helps students near MSU-IIT find a room that fits, with honest information.">
+    <div class="glow"></div>
+    <div class="logo a fade" id="logo1"></div>
+    <h1 class="a">Find a room that <span class="mark">feels like home</span>.</h1>
+    <div class="foot a fade">
+      <span>Team DormNamoPH · CCC100</span>
+      <span class="url">dormnamo.ktens.me</span>
+    </div>
+  </section>
+
+  <!-- 2 Problem -->
+  <section class="slide" data-notes="These numbers come from our own dataset: every boarding house and dorm near MSU-IIT we found on Google Maps. Say it plainly: students choose almost blind.">
+    <p class="kicker a">The problem</p>
+    <h2 class="a">Students near MSU-IIT choose a room <span class="hl">almost blind</span>.</h2>
+    <div class="grid g4">
+      <div class="box stat a"><div class="big"><span data-count="1">0</span><small>of 13</small></div><p>places show their rent</p><div class="cells" data-fill="1" data-of="13"></div></div>
+      <div class="box stat a"><div class="big"><span data-count="2">0</span><small>of 13</small></div><p>list their amenities</p><div class="cells" data-fill="2" data-of="13"></div></div>
+      <div class="box stat a"><div class="big"><span data-count="0">0</span><small>of 13</small></div><p>are verified</p><div class="cells" data-fill="0" data-of="13"></div></div>
+      <div class="box stat a"><div class="big"><span data-count="3">0</span><small>ratings</small></div><p>for a typical place, too few to trust</p></div>
+    </div>
+    <p class="source a fade">Source: the 13 boarding houses and dorms near MSU-IIT listed on Google Maps, collected by our team.</p>
+  </section>
+
+  <!-- 3 Why it's hard -->
+  <section class="slide" data-notes="Three reasons the room hunt is hard, one at a time (press the right arrow for the next). One: there's no one place to look, so students scroll Facebook posts and message every owner. Two: nothing is verified, so scams slip through. Three: most apps rank what keeps you scrolling, not what you'd be happy with.">
+    <p class="kicker a">Why it's hard</p>
+    <h2 class="a">Scattered, unverified, and built for clicks.</h2>
+    <div class="solo">
+      <div class="box soft one">
+        <div class="tx"><span class="num">01 / 03</span><h3>No central listing hub</h3><p>Rooms hide in Facebook posts, most without a price. You message every owner, then walk over to check.</p><p class="src">Seen in MSU-IIT Cats housing posts</p></div>
+        <div class="viz posts" aria-hidden="true">
+          <div class="post"><i class="av"></i><span>Room for rent near IIT. PM me</span><b>₱ ?</b></div>
+          <div class="post"><i class="av"></i><span>Bedspace for 2. PM for price</span><b>₱ ?</b></div>
+          <div class="post"><i class="av"></i><span>Vacant room! Message me</span><b>₱ ?</b></div>
+        </div>
+      </div>
+      <div class="box soft one step">
+        <div class="tx"><span class="num">02 / 03</span><h3>Scams and trust gaps</h3><p>Nothing is verified, so a fake listing looks just like a real one until you've paid or visited.</p><p class="src">Inquirer, Aug 2022 (Baguio)</p></div>
+        <div class="viz scam" aria-hidden="true">
+          <div class="ph"><span class="flag">Not verified</span></div>
+          <div class="info"><b>Cozy room near campus</b><span class="pr">₱2,000 <small>/ month</small></span><span class="warn">Pay the deposit first to reserve</span></div>
+        </div>
+      </div>
+      <div class="box soft one step">
+        <div class="tx"><span class="num">03 / 03</span><h3>Engagement, not satisfaction</h3><p>Most apps rank what keeps you scrolling, not the room you'd actually be happy in.</p><p class="src">Kleinberg et al., 2022; RecSys '25</p></div>
+        <div class="viz feed" aria-hidden="true">
+          <div class="hd"><span>Sorted by most viewed</span><span>Fits you</span></div>
+          <div class="ln"><i>1</i><span>Room A</span><em>Trending</em><b class="no">✗</b></div>
+          <div class="ln"><i>2</i><span>Room B</span><em>Popular</em><b class="no">✗</b></div>
+          <div class="ln best"><i>3</i><span>Room C</span><em></em><b class="yes">✓</b></div>
+        </div>
+      </div>
+    </div>
+    <p class="source a fade">Pictures are illustrations, not real posts or listings.</p>
+  </section>
+
+  <!-- 4 Meet DormNamo -->
+  <section class="slide" data-notes="This is the product in one picture. Point at the card: price, walk time, what's confirmed, and what is still unknown. The 92% is an example student.">
+    <div class="row">
+      <div style="flex: 1">
+        <p class="kicker a">Meet DormNamo</p>
+        <h2 class="a">DormNamo puts every room near campus in one place.</h2>
+        <p class="lead a">Rent, amenities, the walk to class and how well it fits you. And when a listing doesn't say something, we tell you it's unknown instead of guessing.</p>
+      </div>
+      <div class="a pop">
+        <div class="card">
+          <div class="ph"><span class="tag l">Boarding house</span><span class="tag r">92% match</span><span id="cardMark"></span></div>
+          <div class="cb">
+            <h4>Gonzales-Deanon Boarding House D</h4>
+            <div class="meta">Atis St, Iligan City · about 4 min walk</div>
+            <ul class="facts">
+              <li><span class="y">✓</span> Within your budget</li>
+              <li><span class="y">✓</span> Lists a Wi-Fi hotspot</li>
+              <li><span class="q">?</span> Water supply: not stated, ask the owner</li>
+            </ul>
+            <div class="price">₱4,000 <small>/ month</small></div>
+          </div>
+        </div>
+        <p class="example">Real listing; match % shown for an example student</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 Hook -->
+  <section class="slide film" data-notes="The hook: 29 seconds, with music. Let it play to the end, then press the right arrow for the ad. P pauses or plays it.">
+    <video src="videos/DormNamo%20%5BBDEE69D%5D.mp4" playsinline preload="auto" aria-label="DormNamo hook video"></video>
+    <p class="hint" hidden>Press P to play</p>
+  </section>
+
+  <!-- 6 Ad -->
+  <section class="slide film" data-notes="Let the ad play: 35 seconds on a loop, no sound, so talk over it if you like. P pauses or plays it. Press the right arrow to move on.">
+    <video id="ad" src="videos/Ad-Wide.mp4" muted loop playsinline preload="auto" aria-label="DormNamo ad"></video>
+  </section>
+
+  <!-- 7 Key features -->
+  <section class="slide" data-notes="Four features, one at a time (press the right arrow for the next). Compare puts up to three places side by side and shows what's unknown. Namo answers in plain words. With your OK, the ranking learns from your likes and passes. Owners get a simple listing form and Featured spots.">
+    <p class="kicker a">Key features</p>
+    <h2 class="a">Everything you need to decide, in one place.</h2>
+    <div class="solo">
+      <div class="box one">
+        <div class="tx"><span class="num">01 / 04</span><h3>Side-by-side compare</h3><p>Up to three places in one view: rent, walk time, what's confirmed and what's unknown.</p></div>
+        <div class="viz cmp" aria-hidden="true">
+          <span></span><b>Place A</b><b>Place B</b><b>Place C</b>
+          <i>Rent</i><span class="in">₱4,000</span><span class="in best">₱3,500</span><span class="in unk">Unknown</span>
+          <i>Walk</i><span class="in best">4 min</span><span class="in">9 min</span><span class="in">6 min</span>
+          <i>Wi-Fi</i><span class="in yes">✓</span><span class="in unk">Unknown</span><span class="in yes">✓</span>
+        </div>
+      </div>
+      <div class="box one step">
+        <div class="tx"><span class="num">02 / 04</span><h3>Namo, the room helper</h3><p>Say what you need in plain words and get matching rooms right away.</p></div>
+        <div class="viz mchat" aria-hidden="true">
+          <span class="in me">Under ₱4,500 with Wi-Fi?</span>
+          <span class="in bot">1 match: ₱4,000, about a 4-minute walk.</span>
+          <span class="in bot">The others don't list their rent yet.</span>
+        </div>
+      </div>
+      <div class="box one step">
+        <div class="tx"><span class="num">03 / 04</span><h3>Adaptive preferences</h3><p>Swipe up to like, down to pass. With your OK, the ranking learns your taste.</p></div>
+        <div class="viz swp" aria-hidden="true">
+          <span class="in pass">↓ Pass</span>
+          <div class="in rc"><i></i><b>Place C</b><small>₱4,000 · 4 min walk</small></div>
+          <span class="in like">↑ Like</span>
+          <p class="in lrn">Learning: likes Wi-Fi and short walks</p>
+        </div>
+      </div>
+      <div class="box one step">
+        <div class="tx"><span class="num">04 / 04</span><h3>Owner-friendly tools</h3><p>A simple listing form, messages and offers, and Featured placement.</p></div>
+        <div class="viz lform" aria-hidden="true">
+          <span class="in fld"><i>Place name</i>Your boarding house</span>
+          <span class="in fld"><i>Rent / month</i>₱4,000</span>
+          <div class="in act"><span class="chk">✓ Wi-Fi</span><span class="chk off">Curfew</span><b class="post">Post listing</b><b class="feat">Featured</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 Matching -->
+  <section class="slide" data-notes="One part at a time, with a real example: Uy Pad Residences with the default preferences. One: the checklist. The walk and the cleanliness are confirmed, the rest the listing doesn't say, and we never guess, so it scores 78%. Two: after 10 swipes, the learning model counts for a quarter and rates it 70%. Three: together, 76%. Learning can count up to half, after 20 swipes.">
+    <p class="kicker a">Matching</p>
+    <h2 class="a">A match % that <span class="mark">explains itself</span>.</h2>
+    <div class="solo mx">
+      <div class="box soft one">
+        <div class="tx"><span class="num">1 / 3</span><h3>Your checklist</h3><p>Each need you set is checked against the listing: confirmed or unknown. We never guess, so unknowns cap the score.</p><p class="res">Every known fact matches: <b>78%</b></p></div>
+        <div class="pic">
+          <ul class="ck">
+            <li class="k"><span class="y">✓</span><span>Walk 0.6 km <em>must-have</em></span><b>9 pts</b></li>
+            <li class="k"><span class="y">✓</span><span>Clean and peaceful</span><b>4 pts</b></li>
+            <li><span class="q">?</span><span>Budget</span><b>8 pts</b></li>
+            <li><span class="q">?</span><span>Room capacity</span><b>7 pts</b></li>
+            <li><span class="q">?</span><span>Water and 6 more</span><b>21 pts</b></li>
+          </ul>
+          <div class="meter"><div class="lb"><span>Known</span><span>13 of 49 pts</span></div><div class="tr"><i style="--w: 26.5%"></i></div></div>
+        </div>
+      </div>
+      <div class="box soft one step">
+        <div class="tx"><span class="num">2 / 3</span><h3>Your taste</h3><p>A small model learns from your likes and passes, right in your browser. The more you swipe, the more it counts, up to half.</p><p class="res">After 10 swipes it rates this place <b>70%</b></p></div>
+        <div class="pic">
+          <div class="sw"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="meter gold"><div class="lb"><span>Learning counts</span><span>25% after 10 swipes</span></div><div class="tr"><i style="--w: 50%"></i></div><div class="lb sm"><span>0</span><span>up to 50% after 20</span></div></div>
+        </div>
+      </div>
+      <div class="box soft one step">
+        <div class="tx"><span class="num">3 / 3</span><h3>Your match %</h3><p>The two parts blended. Every point can be traced back to a fact or a swipe.</p><p class="res eq">0.75 × 78% + 0.25 × 70%</p></div>
+        <div class="pic">
+          <div class="ring">
+            <svg viewBox="0 0 160 160" aria-hidden="true"><circle class="bg" cx="80" cy="80" r="64" pathLength="100" /><circle class="p1" cx="80" cy="80" r="64" pathLength="100" /><circle class="p2" cx="80" cy="80" r="64" pathLength="100" /></svg>
+            <div class="v"><span data-count="76">0</span><small>%</small></div>
+          </div>
+          <div class="lg"><span><i></i>checklist 58.5</span><span><i class="g"></i>learned 17.5</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="source a fade">Example: Uy Pad Residences with the default preferences, after 10 swipes.</p>
+  </section>
+
+  <!-- 9 Namo -->
+  <section class="slide" data-notes="Namo is our room helper. Click through the chat: ask in plain words, Namo answers from the real listings, shows what's confirmed and what isn't, and offers the next step. Gemini can polish the wording, but Namo picks every fact and checks the reply twice.">
+    <div class="row">
+      <div style="flex: 1">
+        <p class="kicker a">Meet Namo</p>
+        <h2 class="a">Ask in plain words. Get straight answers.</h2>
+        <div class="nf">
+          <div class="a"><div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="9" y="7" width="30" height="34" rx="4"/><path d="m15 18 3 3 6-6"/><path d="M28 18h5"/><path d="m15 30 3 3 6-6"/><path d="M28 30h5"/></svg></div>Explains why it fits</div>
+          <div class="a"><div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="9" width="15" height="30" rx="3"/><rect x="27" y="9" width="15" height="30" rx="3"/><path d="M10 17h7"/><path d="M31 17h7"/></svg></div>Compares places</div>
+          <div class="a"><div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="17"/><path d="M19 19a5 5 0 1 1 7 4.6c-1.3.6-2 1.6-2 3V28"/><path d="M24 34v.5"/></svg></div>Says what's unknown</div>
+          <div class="a"><div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6 39 12v11c0 9.5-6.4 16.7-15 19-8.6-2.3-15-9.5-15-19V12z"/><path d="m17 24 5 5 9-9"/></svg></div>Fact-checked twice</div>
+        </div>
+      </div>
+      <div class="phone a pop">
+        <div class="ph-h"><span class="av" id="namoMark"></span><div><b>Namo</b><small>Room helper</small></div></div>
+        <div class="ph-b">
+          <div class="bub me step">Which dorms have Wi-Fi under ₱4,500?</div>
+          <div class="bub bot step"><span class="dots"><i></i><i></i><i></i></span><div class="said">
+            <div class="mini"><b>Gonzales-Deanon Boarding House D</b><span class="pr">₱4,000 <small>/ month · 4 min walk</small></span><span class="tags"><em class="y">✓ Wi-Fi</em><em class="q">? Water</em></span></div>
+          </div></div>
+          <div class="bub bot step"><span class="dots"><i></i><i></i><i></i></span><div class="said">The others don't list their rent yet.
+            <span class="qr"><u>Save this search</u><u>Compare</u></span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 How it's built -->
+  <section class="slide" data-notes="A modern, low-cost stack. The app, the learning model and Namo all run on the student's phone, hosted on Cloudflare. It talks to Supabase for accounts and rules, OpenStreetMap for maps and routes, and Gemini only for optional wording, with the student's yes. No server to maintain; it runs free at our scale.">
+    <p class="kicker a">How it's built</p>
+    <h2 class="a">Fast, low-cost, and ready to grow.</h2>
+    <div class="arch">
+      <div class="dev a pop">
+        <span class="lbl">On your phone</span>
+        <span class="chip">Web app</span>
+        <span class="chip">Learning model</span>
+        <span class="chip">Namo</span>
+        <small>Hosted on Cloudflare</small>
+      </div>
+      <div class="links"><i class="a fade"></i><i class="a fade"></i><i class="a fade dash"></i></div>
+      <div class="svc">
+        <div class="box soft a"><b>Supabase</b><span>Accounts and rules</span></div>
+        <div class="box soft a"><b>OpenStreetMap</b><span>Maps and walking routes</span></div>
+        <div class="box soft a"><b>Gemini</b><span>Optional wording, with your yes</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 Ethical use of data -->
+  <section class="slide" data-notes="Name the problem first: an app that learns from you can feel like being watched. Then our four rules, one per click: you choose, it's only for finding your home, we show facts, and your info stays protected. Close on: you stay in control.">
+    <p class="kicker a">Ethical use of data</p>
+    <h2 class="a">Learning from you shouldn't cost you your privacy.</h2>
+    <p class="lead a prob"><b>The problem:</b> apps that learn from you can feel like being watched.</p>
+    <div class="grid g4 rules">
+      <div class="box soft step"><div class="ic"><span class="tg" aria-hidden="true"><i></i></span></div><h3>Consent</h3><p>You choose. Change it any time.</p></div>
+      <div class="box soft step"><div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 22 24 9l16 13"/><path d="M13 19v19h22V19"/><path d="M21 38V28h6v10"/></svg></div><h3>Purpose</h3><p>Only to find your next home.</p></div>
+      <div class="box soft step"><div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="9" y="7" width="30" height="34" rx="4"/><path d="m15 18 3 3 6-6"/><path d="M28 18h5"/><path d="m15 30 3 3 6-6"/><path d="M28 30h5"/></svg></div><h3>Honesty</h3><p>Facts shown. Unknowns labeled.</p></div>
+      <div class="box soft step"><div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6 39 12v11c0 9.5-6.4 16.7-15 19-8.6-2.3-15-9.5-15-19V12z"/><path d="m17 24 5 5 9-9"/></svg></div><h3>Protection</h3><p>Your number stays private. No outside AI without your yes.</p></div>
+    </div>
+    <p class="step rules-end">You stay in control.</p>
+  </section>
+
+  <!-- 12 Who it's for -->
+  <section class="slide" data-notes="A two-sided marketplace. On one side, people looking for a room: students first, especially freshmen away from home, and movers like working professionals, interns and reviewees. On the other, landlords who want their rooms filled faster.">
+    <p class="kicker a">Who it's for</p>
+    <h2 class="a">Two sides of one marketplace.</h2>
+    <div class="aud">
+      <span class="side a fade">Looking for a room</span>
+      <span class="side own a fade">Has a room</span>
+      <div class="box soft a"><div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M4 18 24 9l20 9-20 9z"/><path d="M12 22v9c0 3 5.4 6 12 6s12-3 12-6v-9"/><path d="M44 18v10"/></svg></div><h3>Students</h3><p>Freshmen away from home</p></div>
+      <div class="box soft a"><div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="15" width="36" height="25" rx="4"/><path d="M17 15v-4a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v4"/><path d="M6 26h36"/></svg></div><h3>Movers</h3><p>Workers, interns, reviewees</p></div>
+      <div class="box soft own a"><div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="15" cy="24" r="8"/><path d="M23 24h19"/><path d="M36 24v6"/><path d="M42 24v5"/></svg></div><h3>Landlords</h3><p>Fill rooms faster</p></div>
+    </div>
+  </section>
+
+  <!-- 13 Business model -->
+  <section class="slide" data-notes="Students never pay. Landowners list two places free and pay only for visibility. Boosts sell when an empty bed costs them most: enrollment, June to August and December to January. Other options: 399 pesos for 30 days, 1,499 a semester, 1,299 early-bird.">
+    <p class="kicker a">Business model</p>
+    <h2 class="a">Free for students. Landowners pay for visibility.</h2>
+    <div class="plans">
+      <div class="box plan a"><h3>Basic</h3><div class="p">Free</div><ul><li>2 places</li><li>Messages and offers</li></ul></div>
+      <div class="box plan feat a"><h3>Featured boost</h3><div class="p">₱149 <small>/ 7 days</small></div><ul><li>Featured in your barangay</li><li>Only 3 spots each</li></ul></div>
+      <div class="box plan a"><h3>Owner Pro</h3><div class="p">₱549 <small>/ month</small></div><ul><li>Up to 5 places</li><li>₱449 a month yearly</li></ul></div>
+    </div>
+    <div class="season a"><span>Boosts sell at enrollment</span><div class="mo"><i class="pk" style="--k: 0">J</i><i style="--k: 1">F</i><i style="--k: 2">M</i><i style="--k: 3">A</i><i style="--k: 4">M</i><i class="pk" style="--k: 5">J</i><i class="pk" style="--k: 6">J</i><i class="pk" style="--k: 7">A</i><i style="--k: 8">S</i><i style="--k: 9">O</i><i style="--k: 10">N</i><i class="pk" style="--k: 11">D</i></div></div>
+    <p class="source a fade">Also ₱399 / 30 days, ₱1,499 a semester (₱1,299 early-bird).</p>
+  </section>
+
+  <!-- 14 Validation -->
+  <section class="slide" data-notes="Our survey: 18 of 20 non-local students would use or prefer a website for the search, and 6 of 10 landladies agreed to pay for online listings. Be honest: these are small surveys and what people said, not yet sign-ups or payments. That's exactly what we test next.">
+    <p class="kicker a">What we heard</p>
+    <h2 class="a">Demand on <span class="mark">both sides</span> of the marketplace.</h2>
+    <div class="grid g3">
+      <div class="box stat a"><div class="big"><span data-count="90">0</span><small>%</small></div><p>of non-local students would search on a website <span class="mute">(18 of 20)</span></p><div class="cells" data-fill="18" data-of="20"></div></div>
+      <div class="box stat a"><div class="big"><span data-count="60">0</span><small>%</small></div><p>of landladies would pay to list online <span class="mute">(6 of 10)</span></p><div class="cells" data-fill="6" data-of="10"></div></div>
+      <div class="box col next a">
+        <h3>Testing next</h3>
+        <ul>
+          <li>Real payments at June enrollment</li>
+          <li>First 10 landowners</li>
+          <li>Students coming back</li>
+        </ul>
+      </div>
+    </div>
+    <p class="source a fade">Our team's survey. Small samples, and what people said, not yet sign-ups or payments.</p>
+  </section>
+
+  <!-- 15 Roadmap -->
+  <section class="slide" data-notes="What's live, what's next, what's later. Payments come after we've proven landowners want to list.">
+    <p class="kicker a">Roadmap</p>
+    <h2 class="a">From one campus to the whole city.</h2>
+    <div class="road">
+      <div class="r now a"><div class="dot"></div><h3>Now</h3><div class="chips"><span>Matching</span><span>Discover</span><span>Namo</span><span>Maps and routes</span><span>Accounts</span></div></div>
+      <div class="r a"><div class="dot"></div><h3>Next</h3><div class="chips"><span>Listing photos</span><span>Live messages</span><span>First 10 landowners</span></div></div>
+      <div class="r a"><div class="dot"></div><h3>Later</h3><div class="chips"><span>Online payments</span><span>Verified listings</span><span>More schools</span></div></div>
+    </div>
+  </section>
+
+  <!-- 16 Team -->
+  <section class="slide" data-notes="One sentence per person: what they built.">
+    <p class="kicker a">The team</p>
+    <h2 class="a">Team DormNamoPH</h2>
+    <div class="team" id="team"></div>
+  </section>
+
+  <!-- 17 Close -->
+  <section class="slide close" data-notes="Invite them to try it on their phones right now. Then take questions.">
+    <div class="logo a fade" id="logo2"></div>
+    <h1 class="a">Your home away from home.</h1>
+    <p class="lead a" style="margin-top: 26px">Finding affordable, suitable accommodation, made easier for everyone.</p>
+    <div class="a pop"><span class="url">dormnamo.ktens.me</span></div>
+    <p class="lead a mute" style="margin-top: 36px">Thank you. Questions?</p>
+  </section>
+
+</main>
+
+<div class="progress" id="progress"></div>
+<div class="count" id="count"></div>
+<div class="jump" id="jump"></div>
+<div class="notes" id="notes" hidden><b>Notes</b><span id="noteText"></span></div>
+
+<script>
+/* ---------- edit your team here ---------- */
+var TEAM = [
+  { name: "Ralph Michael S. Tan", role: "Lead Developer, Full-stack", built: "Leads the build, from the pages to the database.", photo: "" },
+  { name: "Lourd Daniel Blasco", role: "Backend Developer", built: "Builds the server side: accounts, data and rules.", photo: "" },
+  { name: "June Dale P. Laguindab", role: "Creative Artist", built: "Creates the artwork and visuals.", photo: "" },
+  { name: "Dilfred C. Gacasan Jr.", role: "Head of Story and Copy", built: "Writes the words: the pitch, the site and the story.", photo: "" },
+  { name: "Harvie Niño L. Solibio", role: "Visual Concept Designer", built: "Shapes the concepts and the look of DormNamo.", photo: "" },
+];
+
+/* ---------- the door logo ---------- */
+var MARK =
+  '<svg viewBox="1 1 26 31" aria-hidden="true"><path d="M3 28.4V14a11 11 0 0 1 22 0v14.4a1.6 1.6 0 0 1-1.6 1.6H4.6A1.6 1.6 0 0 1 3 28.4z" fill="#0a47a9"/><path d="M14 6.2V30" stroke="#fff" stroke-width="1.6"/><circle cx="10.9" cy="18.6" r="1.45" fill="#fff"/><circle cx="17.1" cy="18.6" r="1.45" fill="#fff"/></svg>';
+var LOGO = MARK + "<b>Dorm<span>Namo</span></b>";
+document.getElementById("logo1").innerHTML = LOGO;
+document.getElementById("logo2").innerHTML = LOGO;
+document.getElementById("cardMark").innerHTML = MARK;
+document.getElementById("namoMark").innerHTML = MARK;
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+document.getElementById("team").innerHTML = TEAM.map(function (p) {
+  // initials from the first and last name, skipping middle initials and "Jr."
+  var w = p.name.split(/\s+/).filter(function (x) { return !/\.$/.test(x); });
+  var ini = (w[0].charAt(0) + (w.length > 1 ? w[w.length - 1].charAt(0) : "")).toUpperCase();
+  return (
+    '<div class="box who a"><div class="av">' +
+    (p.photo ? '<img src="' + esc(p.photo) + '" alt="">' : esc(ini)) +
+    "</div><h3>" + esc(p.name) + '</h3><div class="role">' + esc(p.role) + "</div><p>" + esc(p.built) + "</p></div>"
+  );
+}).join("");
+
+/* ---------- "N of M" block charts ---------- */
+document.querySelectorAll(".cells").forEach(function (el) {
+  var of = +el.dataset.of, fill = +el.dataset.fill, h = "";
+  for (var j = 0; j < of; j++) h += "<i" + (j < fill ? ' class="y"' : "") + ' style="--j: ' + j + '"></i>';
+  el.innerHTML = h;
+  el.style.setProperty("--of", of);
+  el.setAttribute("role", "img");
+  el.setAttribute("aria-label", fill + " of " + of);
+});
+
+/* ---------- videos: hide the "Press P" hint once one plays ---------- */
+document.querySelectorAll(".film video").forEach(function (v) {
+  v.addEventListener("playing", function () {
+    var h = v.parentNode.querySelector(".hint");
+    if (h) h.hidden = true;
+  });
+});
+
+/* ---------- the deck ---------- */
+(function () {
+  var stage = document.getElementById("stage"),
+    slides = [].slice.call(document.querySelectorAll(".slide")),
+    progress = document.getElementById("progress"),
+    count = document.getElementById("count"),
+    notes = document.getElementById("notes"),
+    noteText = document.getElementById("noteText"),
+    jump = document.getElementById("jump"),
+    calm = matchMedia("(prefers-reduced-motion: reduce)").matches,
+    cur = -1,
+    typed = "";
+
+  // stagger order of the entrance builds on each slide
+  slides.forEach(function (s) {
+    s.querySelectorAll(".a").forEach(function (el, i) { el.style.setProperty("--i", i); });
+  });
+
+  // scale the 1600 x 900 stage to the window
+  function fit() {
+    var k = Math.min(innerWidth / 1600, innerHeight / 900);
+    stage.style.transformOrigin = "center center";
+    stage.style.transform = "translate(-50%, -50%) scale(" + k + ")";
+  }
+  addEventListener("resize", fit);
+  fit();
+
+  function steps(s) { return [].slice.call(s.querySelectorAll(".step")); }
+
+  // count up the big numbers when their slide appears
+  function countUp(s) {
+    s.querySelectorAll("[data-count]").forEach(function (el) {
+      var end = +el.dataset.count, t0 = null, dur = calm ? 0 : 900;
+      if (!dur) return (el.textContent = end);
+      el.textContent = "0";
+      setTimeout(function () {
+        requestAnimationFrame(function tick(t) {
+          if (t0 == null) t0 = t;
+          var p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+          el.textContent = Math.round(end * e);
+          if (p < 1) requestAnimationFrame(tick);
+        });
+      }, 650);
+    });
+  }
+
+  function show(n, back) {
+    n = Math.max(0, Math.min(slides.length - 1, n));
+    if (n === cur) return;
+    var prev = slides[cur];
+    if (prev) {
+      prev.classList.remove("on");
+      prev.classList.toggle("left", !back);
+    }
+    if (prev) prev.querySelectorAll("video").forEach(function (v) { v.pause(); });
+    var s = slides[n];
+    // a video slide plays from the start every time you land on it
+    s.querySelectorAll("video").forEach(function (v) {
+      v.currentTime = 0;
+      var go = v.play();
+      // a video with sound can be blocked until a key is pressed (e.g. after a reload on this slide): ask for P
+      if (go && go.catch) go.catch(function () { var h = s.querySelector(".hint"); if (h) h.hidden = false; });
+    });
+    // start the new slide on the side it comes from (right going forward, left going back), then glide in
+    s.style.transition = "none";
+    s.classList.toggle("left", !!back);
+    void s.offsetWidth;
+    s.style.transition = "";
+    s.classList.remove("left");
+    s.classList.add("on");
+    // going back lands on the slide fully built; going forward starts with no steps shown
+    steps(s).forEach(function (el) { el.classList.toggle("shown", !!back); });
+    countUp(s);
+    cur = n;
+    progress.style.width = ((n + 1) / slides.length) * 100 + "%";
+    count.textContent = String(n + 1).padStart(2, "0") + " / " + String(slides.length).padStart(2, "0");
+    noteText.textContent = s.dataset.notes || "";
+    history.replaceState(null, "", "#" + (n + 1));
+  }
+  function next() {
+    var hidden = steps(slides[cur]).filter(function (el) { return !el.classList.contains("shown"); });
+    if (hidden.length) {
+      hidden[0].classList.add("shown");
+      countUp(hidden[0]);
+      return;
+    }
+    show(cur + 1);
+  }
+  function back() {
+    var shown = steps(slides[cur]).filter(function (el) { return el.classList.contains("shown"); });
+    if (shown.length) return shown[shown.length - 1].classList.remove("shown");
+    show(cur - 1, true);
+  }
+
+  addEventListener("keydown", function (e) {
+    var k = e.key;
+    if (/^[0-9]$/.test(k)) { typed += k; jump.textContent = "Go to " + typed; return; }
+    if (k === "Enter" && typed) { show(+typed - 1); typed = ""; jump.textContent = ""; return; }
+    typed = ""; jump.textContent = "";
+    if (k === "ArrowRight" || k === "ArrowDown" || k === " " || k === "PageDown" || k === "Enter") { e.preventDefault(); next(); }
+    else if (k === "ArrowLeft" || k === "ArrowUp" || k === "PageUp" || k === "Backspace") { e.preventDefault(); back(); }
+    else if (k === "Home") show(0, true);
+    else if (k === "End") show(slides.length - 1, true);
+    else if (k === "f" || k === "F") {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+    } else if (k === "n" || k === "N") notes.hidden = !notes.hidden;
+    else if (k === "p" || k === "P") {
+      var v = slides[cur].querySelector("video");
+      if (v) v.paused ? v.play() : v.pause();
+    }
+  });
+
+  // click: right half = next, left half = back
+  addEventListener("click", function (e) {
+    if (e.target.closest("a, button")) return;
+    if (e.clientX > innerWidth / 2) next(); else back();
+  });
+
+  // touch: swipe left / right
+  var tx = null;
+  addEventListener("touchstart", function (e) { tx = e.touches[0].clientX; }, { passive: true });
+  addEventListener("touchend", function (e) {
+    if (tx == null) return;
+    var dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) (dx < 0 ? next : back)();
+    tx = null;
+  });
+
+  // hide the cursor while presenting
+  var idle;
+  addEventListener("mousemove", function () {
+    document.body.classList.remove("idle");
+    clearTimeout(idle);
+    idle = setTimeout(function () { document.body.classList.add("idle"); }, 2000);
+  });
+
+  // start on the slide in the address (#5), so a reload keeps your place
+  var start = parseInt(location.hash.slice(1), 10);
+  show(start > 0 ? start - 1 : 0, start > 0);
+})();
+</script>
+</body>
+</html>
